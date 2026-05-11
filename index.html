@@ -75,19 +75,19 @@ Business Dashboard FY 2026-27
 
 <div class="flex gap-2 flex-wrap">
 
-<button onclick="showTab('sales')" class="tab-btn active px-4 py-2 rounded-lg bg-emerald-600 font-semibold">
+<button onclick="showTab('sales', event)" class="tab-btn active px-4 py-2 rounded-lg bg-emerald-600 font-semibold">
 Sales
 </button>
 
-<button onclick="showTab('purchase')" class="tab-btn px-4 py-2 rounded-lg bg-emerald-600 font-semibold">
+<button onclick="showTab('purchase', event)" class="tab-btn px-4 py-2 rounded-lg bg-emerald-600 font-semibold">
 Purchase
 </button>
 
-<button onclick="showTab('expense')" class="tab-btn px-4 py-2 rounded-lg bg-emerald-600 font-semibold">
+<button onclick="showTab('expense', event)" class="tab-btn px-4 py-2 rounded-lg bg-emerald-600 font-semibold">
 Expense
 </button>
 
-<button onclick="showTab('payment')" class="tab-btn px-4 py-2 rounded-lg bg-emerald-600 font-semibold">
+<button onclick="showTab('payment', event)" class="tab-btn px-4 py-2 rounded-lg bg-emerald-600 font-semibold">
 Payment
 </button>
 
@@ -281,7 +281,7 @@ Payment Records
 
 <script>
 
-const API_URL = "https://script.googleusercontent.com/a/macros/benedictorywoodpanels.com/echo?user_content_key=AUkAhnRePVSiSoLtZ3v-uJyhaq9VDJ1nVnERcSma-mLjEu66bdpDkgDa70S6A67khGE2HZj-Fs-jC3UhbyJMZHGfXs_EHpdZhUKRmC-0goqWwG3JPJqcW7sJxkybhULbLopvAkziGpjfBmO4SAlm1mCbnssyIfATRFWrfAICPuuCQKflOxcOLwuiDhqxixgyjifR-BE1MyC5ZpjYElOwnXYUrg2OV3rN14W9LjRA_sn61XhwJ4EqnarPW9ZB2CCnzCmU6te7H-TjINmvGK4BNw3x6ldy74eIm9RHc3kNLFUKUJxfkQjz81eHQT1_CZKDWA&lib=MNNdgolnnfwWJlQWCO3A83n1x_XP6pQW3";
+const API_URL = "https://script.google.com/macros/s/AKfycbzImGMcnZit6z9Q-QVlJ9cLzGMdVzUo7zJOvhjd8nnGZ44TKw2vXiO3o_XHo_6jG56g3w/exec";
 
 let allData = [];
 
@@ -296,6 +296,8 @@ const response = await fetch(API_URL);
 
 const result = await response.json();
 
+console.log(result);
+
 allData = [
 
 ...result.sales.map(x=>({...x,dataType:'sales'})),
@@ -309,7 +311,7 @@ updateDashboard();
 
 }catch(error){
 
-console.log(error);
+console.log("ERROR:",error);
 
 }
 
@@ -503,7 +505,7 @@ backgroundColor:[
 
 }
 
-function showTab(tab){
+function showTab(tab,event){
 
 document.querySelectorAll(".tab-content").forEach(x=>{
 
