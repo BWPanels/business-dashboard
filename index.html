@@ -57,8 +57,6 @@ color:#047857;
 
 <body>
 
-<!-- HEADER -->
-
 <div class="bg-emerald-700 px-6 py-5 text-white shadow-lg">
 
 <div class="flex justify-between items-center flex-wrap gap-4">
@@ -73,31 +71,9 @@ Business Dashboard FY 2026-27
 </p>
 </div>
 
-<div class="flex gap-2 flex-wrap">
-
-<button onclick="showTab('sales', event)" class="tab-btn active px-4 py-2 rounded-lg bg-emerald-600 font-semibold">
-Sales
-</button>
-
-<button onclick="showTab('purchase', event)" class="tab-btn px-4 py-2 rounded-lg bg-emerald-600 font-semibold">
-Purchase
-</button>
-
-<button onclick="showTab('expense', event)" class="tab-btn px-4 py-2 rounded-lg bg-emerald-600 font-semibold">
-Expense
-</button>
-
-<button onclick="showTab('payment', event)" class="tab-btn px-4 py-2 rounded-lg bg-emerald-600 font-semibold">
-Payment
-</button>
-
 </div>
 
 </div>
-
-</div>
-
-<!-- KPI -->
 
 <div class="grid grid-cols-2 md:grid-cols-5 gap-4 p-6">
 
@@ -128,11 +104,7 @@ Payment
 
 </div>
 
-<!-- SALES TAB -->
-
-<div id="sales-tab" class="tab-content px-6">
-
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 px-6">
 
 <div class="card">
 <h3 class="font-bold mb-4">
@@ -154,7 +126,7 @@ Product Mix
 
 </div>
 
-<div class="card mt-6 overflow-auto">
+<div class="card mt-6 overflow-auto mx-6">
 
 <h3 class="font-bold mb-4">
 Sales Records
@@ -181,109 +153,9 @@ Sales Records
 
 </div>
 
-</div>
-
-<!-- PURCHASE TAB -->
-
-<div id="purchase-tab" class="tab-content hidden px-6">
-
-<div class="card overflow-auto">
-
-<h3 class="font-bold mb-4">
-Purchase Records
-</h3>
-
-<table>
-
-<thead>
-
-<tr>
-<th>Date</th>
-<th>Supplier</th>
-<th>Product</th>
-<th>Qty</th>
-<th>Rate</th>
-<th>Amount</th>
-</tr>
-
-</thead>
-
-<tbody id="purchase-table"></tbody>
-
-</table>
-
-</div>
-
-</div>
-
-<!-- EXPENSE TAB -->
-
-<div id="expense-tab" class="tab-content hidden px-6">
-
-<div class="card overflow-auto">
-
-<h3 class="font-bold mb-4">
-Expense Records
-</h3>
-
-<table>
-
-<thead>
-
-<tr>
-<th>Date</th>
-<th>Category</th>
-<th>Description</th>
-<th>Amount</th>
-</tr>
-
-</thead>
-
-<tbody id="expense-table"></tbody>
-
-</table>
-
-</div>
-
-</div>
-
-<!-- PAYMENT TAB -->
-
-<div id="payment-tab" class="tab-content hidden px-6">
-
-<div class="card overflow-auto">
-
-<h3 class="font-bold mb-4">
-Payment Records
-</h3>
-
-<table>
-
-<thead>
-
-<tr>
-<th>Date</th>
-<th>Type</th>
-<th>Party</th>
-<th>Amount</th>
-<th>Status</th>
-</tr>
-
-</thead>
-
-<tbody id="payment-table"></tbody>
-
-</table>
-
-</div>
-
-</div>
-
 <script>
 
 const API_URL = "https://script.google.com/macros/s/AKfycbzImGMcnZit6z9Q-QVlJ9cLzGMdVzUo7zJOvhjd8nnGZ44TKw2vXiO3o_XHo_6jG56g3w/exec";
-
-let allData = [];
 
 let salesChart;
 let productChart;
@@ -296,42 +168,19 @@ const response = await fetch(API_URL);
 
 const result = await response.json();
 
-console.log(result);
+const sales = result.sales || [];
+const purchase = result.purchase || [];
+const expense = result.expense || [];
+const payment = result.payment || [];
 
-allData = [
+const totalSales = sales.reduce((sum,x)=>
+sum + (Number(x.rate||0)),0);
 
-...result.sales.map(x=>({...x,dataType:'sales'})),
-...result.purchase.map(x=>({...x,dataType:'purchase'})),
-...result.expense.map(x=>({...x,dataType:'expense'})),
-...result.payment.map(x=>({...x,dataType:'payment'}))
+const totalPurchase = purchase.reduce((sum,x)=>
+sum + (Number(x.rate||0)),0);
 
-];
-
-updateDashboard();
-
-}catch(error){
-
-console.log("ERROR:",error);
-
-}
-
-}
-
-function updateDashboard(){
-
-const sales = allData.filter(x=>x.dataType==='sales');
-
-const purchase = allData.filter(x=>x.dataType==='purchase');
-
-const expense = allData.filter(x=>x.dataType==='expense');
-
-const payment = allData.filter(x=>x.dataType==='payment');
-
-const totalSales = sales.reduce((sum,x)=>sum+(Number(x.qty||0)*Number(x.rate||0)),0);
-
-const totalPurchase = purchase.reduce((sum,x)=>sum+(Number(x.qty||0)*Number(x.rate||0)),0);
-
-const totalExpense = expense.reduce((sum,x)=>sum+Number(x.amount||0),0);
+const totalExpense = expense.reduce((sum,x)=>
+sum + Number(x.amount||0),0);
 
 const received = payment
 .filter(x=>x.type==="Received")
@@ -360,58 +209,25 @@ document.getElementById("profit-kpi").innerText =
 document.getElementById("cash-kpi").innerText =
 "₹"+cashFlow.toLocaleString("en-IN");
 
-renderTables(sales,purchase,expense,payment);
-
-renderCharts(sales);
-
-}
-
-function renderTables(sales,purchase,expense,payment){
-
 document.getElementById("sales-table").innerHTML =
 sales.map(x=>`
 <tr>
 <td>${x.date||''}</td>
 <td>${x.customer||''}</td>
 <td>${x.product||''}</td>
-<td>${x.qty||0}</td>
-<td>₹${x.rate||0}</td>
-<td>₹${(Number(x.qty||0)*Number(x.rate||0)).toLocaleString('en-IN')}</td>
+<td>${x.qty||''}</td>
+<td>₹${Number(x.rate||0).toLocaleString('en-IN')}</td>
+<td>₹${Number(x.rate||0).toLocaleString('en-IN')}</td>
 </tr>
 `).join('');
 
-document.getElementById("purchase-table").innerHTML =
-purchase.map(x=>`
-<tr>
-<td>${x.date||''}</td>
-<td>${x.supplier||''}</td>
-<td>${x.product||''}</td>
-<td>${x.qty||0}</td>
-<td>₹${x.rate||0}</td>
-<td>₹${(Number(x.qty||0)*Number(x.rate||0)).toLocaleString('en-IN')}</td>
-</tr>
-`).join('');
+renderCharts(sales);
 
-document.getElementById("expense-table").innerHTML =
-expense.map(x=>`
-<tr>
-<td>${x.date||''}</td>
-<td>${x.category||''}</td>
-<td>${x.description||''}</td>
-<td>₹${Number(x.amount||0).toLocaleString('en-IN')}</td>
-</tr>
-`).join('');
+}catch(error){
 
-document.getElementById("payment-table").innerHTML =
-payment.map(x=>`
-<tr>
-<td>${x.date||''}</td>
-<td>${x.type||''}</td>
-<td>${x.party||''}</td>
-<td>₹${Number(x.amount||0).toLocaleString('en-IN')}</td>
-<td>${x.status||''}</td>
-</tr>
-`).join('');
+console.log(error);
+
+}
 
 }
 
@@ -421,22 +237,20 @@ const monthlyData = {};
 
 sales.forEach(x=>{
 
-const month = new Date(x.date).toLocaleString('default',{month:'short'});
+const month = x.date || "Unknown";
 
 monthlyData[month] =
-(monthlyData[month]||0)+(Number(x.qty||0)*Number(x.rate||0));
+(monthlyData[month]||0)+Number(x.rate||0);
 
 });
 
 if(salesChart){
-
 salesChart.destroy();
-
 }
 
 salesChart = new Chart(document.getElementById("salesChart"),{
 
-type:'line',
+type:'bar',
 
 data:{
 
@@ -446,15 +260,7 @@ datasets:[{
 
 label:'Sales',
 
-data:Object.values(monthlyData),
-
-borderColor:'#059669',
-
-backgroundColor:'rgba(5,150,105,0.2)',
-
-fill:true,
-
-tension:0.4
+data:Object.values(monthlyData)
 
 }]
 
@@ -467,14 +273,12 @@ const productData = {};
 sales.forEach(x=>{
 
 productData[x.product] =
-(productData[x.product]||0)+(Number(x.qty||0)*Number(x.rate||0));
+(productData[x.product]||0)+Number(x.rate||0);
 
 });
 
 if(productChart){
-
 productChart.destroy();
-
 }
 
 productChart = new Chart(document.getElementById("productChart"),{
@@ -487,41 +291,13 @@ labels:Object.keys(productData),
 
 datasets:[{
 
-data:Object.values(productData),
-
-backgroundColor:[
-'#059669',
-'#2563eb',
-'#f59e0b',
-'#dc2626',
-'#8b5cf6'
-]
+data:Object.values(productData)
 
 }]
 
 }
 
 });
-
-}
-
-function showTab(tab,event){
-
-document.querySelectorAll(".tab-content").forEach(x=>{
-
-x.classList.add("hidden");
-
-});
-
-document.getElementById(tab+"-tab").classList.remove("hidden");
-
-document.querySelectorAll(".tab-btn").forEach(btn=>{
-
-btn.classList.remove("active");
-
-});
-
-event.target.classList.add("active");
 
 }
 
