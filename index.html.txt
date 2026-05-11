@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Benedictory Wood Panels Dashboard</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+font-family:'DM Sans',sans-serif;
+}
+
+body{
+background:#f8fafc;
+}
+
+.card{
+background:white;
+border-radius:18px;
+padding:20px;
+box-shadow:0 2px 10px rgba(0,0,0,0.06);
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th,td{
+padding:12px;
+border-bottom:1px solid #e5e7eb;
+font-size:14px;
+}
+
+th{
+background:#ecfdf5;
+color:#065f46;
+text-align:left;
+}
+
+.tab-btn.active{
+background:white;
+color:#047857;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- HEADER -->
+
+<div class="bg-emerald-700 px-6 py-5 text-white shadow-lg">
+
+<div class="flex justify-between items-center flex-wrap gap-4">
+
+<div>
+<h1 class="text-3xl font-bold">
+Benedictory Wood Panels
+</h1>
+
+<p class="text-sm text-emerald-100">
+Business Dashboard FY 2026-27
+</p>
+</div>
+
+<div class="flex gap-2 flex-wrap">
+
+<button onclick="showTab('sales')" class="tab-btn active px-4 py-2 rounded-lg bg-emerald-600 font-semibold">
+Sales
+</button>
+
+<button onclick="showTab('purchase')" class="tab-btn px-4 py-2 rounded-lg bg-emerald-600 font-semibold">
+Purchase
+</button>
+
+<button onclick="showTab('expense')" class="tab-btn px-4 py-2 rounded-lg bg-emerald-600 font-semibold">
+Expense
+</button>
+
+<button onclick="showTab('payment')" class="tab-btn px-4 py-2 rounded-lg bg-emerald-600 font-semibold">
+Payment
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- KPI -->
+
+<div class="grid grid-cols-2 md:grid-cols-5 gap-4 p-6">
+
+<div class="card">
+<p class="text-sm text-gray-500">Total Sales</p>
+<h2 id="sales-kpi" class="text-2xl font-bold text-emerald-700">₹0</h2>
+</div>
+
+<div class="card">
+<p class="text-sm text-gray-500">Purchase</p>
+<h2 id="purchase-kpi" class="text-2xl font-bold text-blue-700">₹0</h2>
+</div>
+
+<div class="card">
+<p class="text-sm text-gray-500">Expense</p>
+<h2 id="expense-kpi" class="text-2xl font-bold text-orange-600">₹0</h2>
+</div>
+
+<div class="card">
+<p class="text-sm text-gray-500">Profit</p>
+<h2 id="profit-kpi" class="text-2xl font-bold text-purple-700">₹0</h2>
+</div>
+
+<div class="card">
+<p class="text-sm text-gray-500">Cash Flow</p>
+<h2 id="cash-kpi" class="text-2xl font-bold text-red-600">₹0</h2>
+</div>
+
+</div>
+
+<!-- SALES TAB -->
+
+<div id="sales-tab" class="tab-content px-6">
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+<div class="card">
+<h3 class="font-bold mb-4">
+Monthly Sales
+</h3>
+
+<canvas id="salesChart"></canvas>
+
+</div>
+
+<div class="card">
+<h3 class="font-bold mb-4">
+Product Mix
+</h3>
+
+<canvas id="productChart"></canvas>
+
+</div>
+
+</div>
+
+<div class="card mt-6 overflow-auto">
+
+<h3 class="font-bold mb-4">
+Sales Records
+</h3>
+
+<table>
+
+<thead>
+
+<tr>
+<th>Date</th>
+<th>Customer</th>
+<th>Product</th>
+<th>Qty</th>
+<th>Rate</th>
+<th>Amount</th>
+</tr>
+
+</thead>
+
+<tbody id="sales-table"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<!-- PURCHASE TAB -->
+
+<div id="purchase-tab" class="tab-content hidden px-6">
+
+<div class="card overflow-auto">
+
+<h3 class="font-bold mb-4">
+Purchase Records
+</h3>
+
+<table>
+
+<thead>
+
+<tr>
+<th>Date</th>
+<th>Supplier</th>
+<th>Product</th>
+<th>Qty</th>
+<th>Rate</th>
+<th>Amount</th>
+</tr>
+
+</thead>
+
+<tbody id="purchase-table"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<!-- EXPENSE TAB -->
+
+<div id="expense-tab" class="tab-content hidden px-6">
+
+<div class="card overflow-auto">
+
+<h3 class="font-bold mb-4">
+Expense Records
+</h3>
+
+<table>
+
+<thead>
+
+<tr>
+<th>Date</th>
+<th>Category</th>
+<th>Description</th>
+<th>Amount</th>
+</tr>
+
+</thead>
+
+<tbody id="expense-table"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<!-- PAYMENT TAB -->
+
+<div id="payment-tab" class="tab-content hidden px-6">
+
+<div class="card overflow-auto">
+
+<h3 class="font-bold mb-4">
+Payment Records
+</h3>
+
+<table>
+
+<thead>
+
+<tr>
+<th>Date</th>
+<th>Type</th>
+<th>Party</th>
+<th>Amount</th>
+<th>Status</th>
+</tr>
+
+</thead>
+
+<tbody id="payment-table"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<script>
+
+const API_URL = "https://script.googleusercontent.com/a/macros/benedictorywoodpanels.com/echo?user_content_key=AUkAhnRePVSiSoLtZ3v-uJyhaq9VDJ1nVnERcSma-mLjEu66bdpDkgDa70S6A67khGE2HZj-Fs-jC3UhbyJMZHGfXs_EHpdZhUKRmC-0goqWwG3JPJqcW7sJxkybhULbLopvAkziGpjfBmO4SAlm1mCbnssyIfATRFWrfAICPuuCQKflOxcOLwuiDhqxixgyjifR-BE1MyC5ZpjYElOwnXYUrg2OV3rN14W9LjRA_sn61XhwJ4EqnarPW9ZB2CCnzCmU6te7H-TjINmvGK4BNw3x6ldy74eIm9RHc3kNLFUKUJxfkQjz81eHQT1_CZKDWA&lib=MNNdgolnnfwWJlQWCO3A83n1x_XP6pQW3";
+
+let allData = [];
+
+let salesChart;
+let productChart;
+
+async function loadData(){
+
+try{
+
+const response = await fetch(API_URL);
+
+const result = await response.json();
+
+allData = [
+
+...result.sales.map(x=>({...x,dataType:'sales'})),
+...result.purchase.map(x=>({...x,dataType:'purchase'})),
+...result.expense.map(x=>({...x,dataType:'expense'})),
+...result.payment.map(x=>({...x,dataType:'payment'}))
+
+];
+
+updateDashboard();
+
+}catch(error){
+
+console.log(error);
+
+}
+
+}
+
+function updateDashboard(){
+
+const sales = allData.filter(x=>x.dataType==='sales');
+
+const purchase = allData.filter(x=>x.dataType==='purchase');
+
+const expense = allData.filter(x=>x.dataType==='expense');
+
+const payment = allData.filter(x=>x.dataType==='payment');
+
+const totalSales = sales.reduce((sum,x)=>sum+(Number(x.qty||0)*Number(x.rate||0)),0);
+
+const totalPurchase = purchase.reduce((sum,x)=>sum+(Number(x.qty||0)*Number(x.rate||0)),0);
+
+const totalExpense = expense.reduce((sum,x)=>sum+Number(x.amount||0),0);
+
+const received = payment
+.filter(x=>x.type==="Received")
+.reduce((sum,x)=>sum+Number(x.amount||0),0);
+
+const paid = payment
+.filter(x=>x.type==="Paid")
+.reduce((sum,x)=>sum+Number(x.amount||0),0);
+
+const profit = totalSales-totalPurchase-totalExpense;
+
+const cashFlow = received-paid;
+
+document.getElementById("sales-kpi").innerText =
+"₹"+totalSales.toLocaleString("en-IN");
+
+document.getElementById("purchase-kpi").innerText =
+"₹"+totalPurchase.toLocaleString("en-IN");
+
+document.getElementById("expense-kpi").innerText =
+"₹"+totalExpense.toLocaleString("en-IN");
+
+document.getElementById("profit-kpi").innerText =
+"₹"+profit.toLocaleString("en-IN");
+
+document.getElementById("cash-kpi").innerText =
+"₹"+cashFlow.toLocaleString("en-IN");
+
+renderTables(sales,purchase,expense,payment);
+
+renderCharts(sales);
+
+}
+
+function renderTables(sales,purchase,expense,payment){
+
+document.getElementById("sales-table").innerHTML =
+sales.map(x=>`
+<tr>
+<td>${x.date||''}</td>
+<td>${x.customer||''}</td>
+<td>${x.product||''}</td>
+<td>${x.qty||0}</td>
+<td>₹${x.rate||0}</td>
+<td>₹${(Number(x.qty||0)*Number(x.rate||0)).toLocaleString('en-IN')}</td>
+</tr>
+`).join('');
+
+document.getElementById("purchase-table").innerHTML =
+purchase.map(x=>`
+<tr>
+<td>${x.date||''}</td>
+<td>${x.supplier||''}</td>
+<td>${x.product||''}</td>
+<td>${x.qty||0}</td>
+<td>₹${x.rate||0}</td>
+<td>₹${(Number(x.qty||0)*Number(x.rate||0)).toLocaleString('en-IN')}</td>
+</tr>
+`).join('');
+
+document.getElementById("expense-table").innerHTML =
+expense.map(x=>`
+<tr>
+<td>${x.date||''}</td>
+<td>${x.category||''}</td>
+<td>${x.description||''}</td>
+<td>₹${Number(x.amount||0).toLocaleString('en-IN')}</td>
+</tr>
+`).join('');
+
+document.getElementById("payment-table").innerHTML =
+payment.map(x=>`
+<tr>
+<td>${x.date||''}</td>
+<td>${x.type||''}</td>
+<td>${x.party||''}</td>
+<td>₹${Number(x.amount||0).toLocaleString('en-IN')}</td>
+<td>${x.status||''}</td>
+</tr>
+`).join('');
+
+}
+
+function renderCharts(sales){
+
+const monthlyData = {};
+
+sales.forEach(x=>{
+
+const month = new Date(x.date).toLocaleString('default',{month:'short'});
+
+monthlyData[month] =
+(monthlyData[month]||0)+(Number(x.qty||0)*Number(x.rate||0));
+
+});
+
+if(salesChart){
+
+salesChart.destroy();
+
+}
+
+salesChart = new Chart(document.getElementById("salesChart"),{
+
+type:'line',
+
+data:{
+
+labels:Object.keys(monthlyData),
+
+datasets:[{
+
+label:'Sales',
+
+data:Object.values(monthlyData),
+
+borderColor:'#059669',
+
+backgroundColor:'rgba(5,150,105,0.2)',
+
+fill:true,
+
+tension:0.4
+
+}]
+
+}
+
+});
+
+const productData = {};
+
+sales.forEach(x=>{
+
+productData[x.product] =
+(productData[x.product]||0)+(Number(x.qty||0)*Number(x.rate||0));
+
+});
+
+if(productChart){
+
+productChart.destroy();
+
+}
+
+productChart = new Chart(document.getElementById("productChart"),{
+
+type:'doughnut',
+
+data:{
+
+labels:Object.keys(productData),
+
+datasets:[{
+
+data:Object.values(productData),
+
+backgroundColor:[
+'#059669',
+'#2563eb',
+'#f59e0b',
+'#dc2626',
+'#8b5cf6'
+]
+
+}]
+
+}
+
+});
+
+}
+
+function showTab(tab){
+
+document.querySelectorAll(".tab-content").forEach(x=>{
+
+x.classList.add("hidden");
+
+});
+
+document.getElementById(tab+"-tab").classList.remove("hidden");
+
+document.querySelectorAll(".tab-btn").forEach(btn=>{
+
+btn.classList.remove("active");
+
+});
+
+event.target.classList.add("active");
+
+}
+
+loadData();
+
+setInterval(loadData,30000);
+
+</script>
+
+</body>
+</html>
