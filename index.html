@@ -1,9 +1,11 @@
 <script>
+
 const API_URL = "https://script.google.com/macros/s/AKfycbzImGMcnZit6z9Q-QVlJ9cLzGMdVzUo7zJOvhjd8nnGZ44TKw2vXiO3o_XHo_6jG56g3w/exec";
 
 let charts = {};
 
 async function loadDashboardData() {
+
   try {
 
     const response = await fetch(API_URL);
@@ -24,33 +26,44 @@ async function loadDashboardData() {
     renderCharts(sales, purchase, expense);
 
   } catch (err) {
+
     console.log("Dashboard Error:", err);
+
   }
+
 }
 
 function amount(qty, rate, gst = 0){
-  return (Number(qty || 0) * Number(rate || 0)) * (1 + Number(gst || 0)/100);
+
+  return (Number(qty || 0) * Number(rate || 0))
+  * (1 + Number(gst || 0)/100);
+
 }
 
 function updateKPIs(sales, purchase, expense, payment){
 
-  const totalSales = sales.reduce((s,x)=>s+amount(x.Qty,x.Rate,x.GST),0);
+  const totalSales = sales.reduce((s,x)=>
+    s + amount(x.Qty,x.Rate,x.GST),0);
 
-  const totalPurchase = purchase.reduce((s,x)=>s+amount(x.Qty,x.Rate,x.GST),0);
+  const totalPurchase = purchase.reduce((s,x)=>
+    s + amount(x.Qty,x.Rate,x.GST),0);
 
-  const totalExpense = expense.reduce((s,x)=>s+Number(x.Amount||0),0);
+  const totalExpense = expense.reduce((s,x)=>
+    s + Number(x.Amount || 0),0);
 
   const received = payment
     .filter(x => (x.Type || "").toLowerCase() === "received")
-    .reduce((s,x)=>s+Number(x.Amount||0),0);
+    .reduce((s,x)=>s+Number(x.Amount || 0),0);
 
   const paid = payment
     .filter(x => (x.Type || "").toLowerCase() === "paid")
-    .reduce((s,x)=>s+Number(x.Amount||0),0);
+    .reduce((s,x)=>s+Number(x.Amount || 0),0);
 
-  const profit = totalSales-totalPurchase-totalExpense;
+  const profit =
+    totalSales-totalPurchase-totalExpense;
 
-  const outstanding = (totalSales-received)+(totalPurchase-paid);
+  const outstanding =
+    (totalSales-received)+(totalPurchase-paid);
 
   document.getElementById("kpi-sales").innerText =
     "₹"+totalSales.toLocaleString("en-IN");
@@ -87,18 +100,31 @@ function updateKPIs(sales, purchase, expense, payment){
 function renderSalesTable(data){
 
   document.getElementById("sales-table").innerHTML =
+
   data.map(x=>`
+
     <tr class="border-b">
+
       <td class="px-4 py-2">${x.Date || ''}</td>
+
       <td class="px-4 py-2">${x.Customer || ''}</td>
+
       <td class="px-4 py-2">${x.Product || ''}</td>
+
       <td class="px-4 py-2 text-right">${x.Qty || 0}</td>
-      <td class="px-4 py-2 text-right">₹${x.Rate || 0}</td>
+
+      <td class="px-4 py-2 text-right">
+      ₹${x.Rate || 0}
+      </td>
+
       <td class="px-4 py-2 text-right font-bold text-green-700">
       ₹${amount(x.Qty,x.Rate,x.GST).toLocaleString("en-IN")}
       </td>
+
       <td class="px-4 py-2">${x.City || ''}</td>
+
     </tr>
+
   `).join('');
 
 }
@@ -106,17 +132,29 @@ function renderSalesTable(data){
 function renderPurchaseTable(data){
 
   document.getElementById("purchase-table").innerHTML =
+
   data.map(x=>`
+
     <tr class="border-b">
+
       <td class="px-4 py-2">${x.Date || ''}</td>
+
       <td class="px-4 py-2">${x.Supplier || ''}</td>
+
       <td class="px-4 py-2">${x.Product || ''}</td>
+
       <td class="px-4 py-2 text-right">${x.Qty || 0}</td>
-      <td class="px-4 py-2 text-right">₹${x.Rate || 0}</td>
+
+      <td class="px-4 py-2 text-right">
+      ₹${x.Rate || 0}
+      </td>
+
       <td class="px-4 py-2 text-right font-bold text-blue-700">
       ₹${amount(x.Qty,x.Rate,x.GST).toLocaleString("en-IN")}
       </td>
+
     </tr>
+
   `).join('');
 
 }
@@ -124,15 +162,23 @@ function renderPurchaseTable(data){
 function renderExpenseTable(data){
 
   document.getElementById("expense-table").innerHTML =
+
   data.map(x=>`
+
     <tr class="border-b">
+
       <td class="px-4 py-2">${x.Date || ''}</td>
+
       <td class="px-4 py-2">${x.Category || ''}</td>
+
       <td class="px-4 py-2">${x.Description || ''}</td>
+
       <td class="px-4 py-2 text-right font-bold text-orange-700">
       ₹${Number(x.Amount || 0).toLocaleString("en-IN")}
       </td>
+
     </tr>
+
   `).join('');
 
 }
@@ -140,16 +186,25 @@ function renderExpenseTable(data){
 function renderPaymentTable(data){
 
   document.getElementById("payment-table").innerHTML =
+
   data.map(x=>`
+
     <tr class="border-b">
+
       <td class="px-4 py-2">${x.Date || ''}</td>
+
       <td class="px-4 py-2">${x.Type || ''}</td>
+
       <td class="px-4 py-2">${x.Party || ''}</td>
+
       <td class="px-4 py-2 text-right font-bold text-purple-700">
       ₹${Number(x.Amount || 0).toLocaleString("en-IN")}
       </td>
+
       <td class="px-4 py-2">${x.Status || ''}</td>
+
     </tr>
+
   `).join('');
 
 }
@@ -179,7 +234,7 @@ function renderCharts(sales, purchase, expense){
     "#059669"
   );
 
-  // PRODUCT PIE
+  // PRODUCT MIX
 
   const products = {};
 
@@ -352,7 +407,7 @@ function createPieChart(id,labels,data){
 
 loadDashboardData();
 
-// AUTO REFRESH EVERY 30 SECONDS
+// AUTO REFRESH
 
 setInterval(loadDashboardData,30000);
 
