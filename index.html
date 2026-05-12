@@ -1,0 +1,310 @@
+```html
+<!doctype html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Benedictory Dashboard</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+font-family:'DM Sans',sans-serif;
+}
+
+body{
+background:#f8fafc;
+}
+
+.card{
+background:white;
+border-radius:20px;
+padding:20px;
+box-shadow:0 2px 10px rgba(0,0,0,0.06);
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- HEADER -->
+
+<div class="bg-emerald-700 p-6 text-white">
+
+<h1 class="text-3xl font-bold">
+Benedictory Wood Panels
+</h1>
+
+<p class="text-emerald-100">
+Business Dashboard
+</p>
+
+</div>
+
+<!-- KPI -->
+
+<div class="grid grid-cols-2 md:grid-cols-5 gap-4 p-6">
+
+<div class="card">
+<p>Total Sales</p>
+<h2 id="kpi-sales" class="text-2xl font-bold text-green-700">
+₹0
+</h2>
+</div>
+
+<div class="card">
+<p>Purchase</p>
+<h2 id="kpi-purchase" class="text-2xl font-bold text-blue-700">
+₹0
+</h2>
+</div>
+
+<div class="card">
+<p>Expense</p>
+<h2 id="kpi-expense" class="text-2xl font-bold text-orange-700">
+₹0
+</h2>
+</div>
+
+<div class="card">
+<p>Profit</p>
+<h2 id="kpi-profit" class="text-2xl font-bold text-purple-700">
+₹0
+</h2>
+</div>
+
+<div class="card">
+<p>Outstanding</p>
+<h2 id="kpi-outstanding" class="text-2xl font-bold text-red-700">
+₹0
+</h2>
+</div>
+
+</div>
+
+<!-- CHARTS -->
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 px-6">
+
+<div class="card">
+
+<h3 class="font-bold mb-4">
+Monthly Sales
+</h3>
+
+<div style="height:300px">
+<canvas id="salesTrendChart"></canvas>
+</div>
+
+</div>
+
+<div class="card">
+
+<h3 class="font-bold mb-4">
+Product Mix
+</h3>
+
+<div style="height:300px">
+<canvas id="productPieChart"></canvas>
+</div>
+
+</div>
+
+</div>
+
+<!-- TABLE -->
+
+<div class="p-6">
+
+<div class="card overflow-auto">
+
+<h3 class="font-bold mb-4">
+Sales Records
+</h3>
+
+<table class="w-full">
+
+<thead>
+
+<tr class="bg-green-50">
+
+<th class="p-3 text-left">Date</th>
+<th class="p-3 text-left">Customer</th>
+<th class="p-3 text-left">Product</th>
+<th class="p-3 text-left">Qty</th>
+<th class="p-3 text-left">Rate</th>
+<th class="p-3 text-left">Amount</th>
+
+</tr>
+
+</thead>
+
+<tbody id="sales-table"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<script>
+
+const API_URL =
+"https://script.google.com/macros/s/AKfycbzImGMcnZit6z9Q-QVlJ9cLzGMdVzUo7zJOvhjd8nnGZ44TKw2vXiO3o_XHo_6jG56g3w/exec";
+
+let charts = {};
+
+async function loadDashboard(){
+
+const response = await fetch(API_URL);
+
+const result = await response.json();
+
+const sales = result.sales || [];
+
+const totalSales = sales.reduce((sum,x)=>{
+
+return sum + (
+(Number(x.Qty||0) * Number(x.Rate||0))
+);
+
+},0);
+
+document.getElementById("kpi-sales").innerText =
+"₹"+totalSales.toLocaleString("en-IN");
+
+document.getElementById("sales-table").innerHTML =
+
+sales.map(x=>`
+
+<tr class="border-b">
+
+<td class="p-3">${x.Date||''}</td>
+<td class="p-3">${x.Customer||''}</td>
+<td class="p-3">${x.Product||''}</td>
+<td class="p-3">${x.Qty||0}</td>
+<td class="p-3">₹${x.Rate||0}</td>
+
+<td class="p-3 font-bold text-green-700">
+
+₹${(
+Number(x.Qty||0) *
+Number(x.Rate||0)
+).toLocaleString("en-IN")}
+
+</td>
+
+</tr>
+
+`).join('');
+
+const monthly = {};
+
+sales.forEach(x=>{
+
+const m = new Date(x.Date)
+.toLocaleString('default',{month:'short'});
+
+monthly[m] =
+(monthly[m]||0)
++
+(Number(x.Qty||0) * Number(x.Rate||0));
+
+});
+
+if(charts.sales){
+charts.sales.destroy();
+}
+
+charts.sales = new Chart(
+document.getElementById("salesTrendChart"),
+{
+type:'line',
+
+data:{
+labels:Object.keys(monthly),
+
+datasets:[{
+label:'Sales',
+data:Object.values(monthly),
+borderColor:'#059669',
+backgroundColor:'rgba(5,150,105,0.2)',
+fill:true,
+tension:0.4
+}]
+},
+
+options:{
+responsive:true,
+maintainAspectRatio:false
+}
+
+}
+);
+
+const productData = {};
+
+sales.forEach(x=>{
+
+productData[x.Product] =
+(productData[x.Product]||0)
++
+(Number(x.Qty||0) * Number(x.Rate||0));
+
+});
+
+if(charts.product){
+charts.product.destroy();
+}
+
+charts.product = new Chart(
+document.getElementById("productPieChart"),
+{
+type:'doughnut',
+
+data:{
+labels:Object.keys(productData),
+
+datasets:[{
+data:Object.values(productData),
+
+backgroundColor:[
+'#059669',
+'#2563eb',
+'#f59e0b',
+'#dc2626',
+'#8b5cf6'
+]
+
+}]
+},
+
+options:{
+responsive:true,
+maintainAspectRatio:false
+}
+
+}
+);
+
+}
+
+loadDashboard();
+
+setInterval(loadDashboard,30000);
+
+</script>
+
+</body>
+</html>
+```
