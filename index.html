@@ -310,7 +310,7 @@ renderAnalytics(sales,purchase,expense);
 
 function amount(qty,rate,gst){
 
-return Number(rate || 0);
+return parseFloat(rate) || 0;
 
 }
 
