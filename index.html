@@ -532,10 +532,18 @@ Object.keys(monthly),
 Object.values(monthly),
 "#7c3aed");
 
-const orders=sales.length;
-const enquiry=orders*2;
-const quotation=Math.round(enquiry*0.7);
-const conversion=Math.round((orders/enquiry)*100);
+const enquiry = sales.filter(x =>
+(x.status || '').toLowerCase() === 'enquiry').length;
+
+const quotation = sales.filter(x =>
+(x.status || '').toLowerCase() === 'quotation').length;
+
+const orders = sales.filter(x =>
+(x.status || '').toLowerCase() === 'order').length;
+
+const conversion = enquiry > 0
+? Math.round((orders / enquiry) * 100)
+: 0;
 
 document.getElementById("enquiry-kpi").innerText=enquiry;
 document.getElementById("quotation-kpi").innerText=quotation;
